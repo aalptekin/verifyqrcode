@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jukebox</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin: 50px; }
+    select, button { font-size: 1rem; padding: 10px; margin: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🎵 Welcome to the Jukebox</h1>
+  <p>Select a song to send via WhatsApp</p>
+  <select id="songSelect"></select><br/>
+  <button onclick="sendWhatsApp()">Send via WhatsApp</button>
+
+  <script>
+    let phoneNumber = '';
+    async function loadSongs() {
+      const response = await fetch('/songs.json');
+      const data = await response.json();
+      phoneNumber = data.phone;
+      const select = document.getElementById('songSelect');
+      data.songs.forEach(song => {
+        const option = document.createElement('option');
+        option.textContent = song;
+        select.appendChild(option);
+      });
+    }
+
+    function sendWhatsApp() {
+      const song = document.getElementById('songSelect').value;
+      const msg = encodeURIComponent(`Hey, I picked this song for you: ${song}`);
+      const phone = phoneNumber.replace(/[^0-9]/g, ''); // sanitize
+      const url = `https://wa.me/${phone}?text=${msg}`;
+      window.open(url, '_blank');
+    }
+
+    loadSongs();
+  </script>
+</body>
+</html>
