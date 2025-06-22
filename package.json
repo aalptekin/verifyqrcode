@@ -1,8 +1,6 @@
 {
   "name": "verifyqrcode",
   "version": "1.0.0",
-  "description": "QR code token verification service",
-  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
