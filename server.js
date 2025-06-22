@@ -1,17 +1,20 @@
-// server.js
-
 const express = require('express');
 const app = express();
-const port = 3000;
 
-// Example: mock token store (in production, use a database)
+// Heroku dynamically sets the port via process.env.PORT
+const PORT = process.env.PORT || 3000;
+
+// In-memory token store (replace with Redis or DB for production)
 const validTokens = new Map([
   ['abc123', { used: false, createdAt: Date.now() }],
-  ['def456', { used: false, createdAt: Date.now() }],
+  ['def456', { used: false, createdAt: Date.now() }]
 ]);
 
-// Token validity duration (e.g., 5 minutes)
-const TOKEN_EXPIRY_MS = 5 * 60 * 1000;
+const TOKEN_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
+
+app.get('/', (req, res) => {
+  res.send('<h2>QR Code Token Verifier</h2><p>Append <code>?token=YOUR_TOKEN</code> to /verify</p>');
+});
 
 app.get('/verify', (req, res) => {
   const token = req.query.token;
@@ -26,25 +29,20 @@ app.get('/verify', (req, res) => {
     return res.status(401).send('Invalid token.');
   }
 
-  // Check if token is expired
-  const isExpired = Date.now() - tokenEntry.createdAt > TOKEN_EXPIRY_MS;
-  if (isExpired) {
-    validTokens.delete(token); // Optionally remove expired token
+  if (Date.now() - tokenEntry.createdAt > TOKEN_EXPIRY_MS) {
+    validTokens.delete(token);
     return res.status(403).send('Token expired.');
   }
 
-  // Check if token has already been used
   if (tokenEntry.used) {
     return res.status(403).send('Token already used.');
   }
 
-  // Mark as used
   tokenEntry.used = true;
 
-  // Success
-  return res.send(`<h1>✅ Access Verified</h1><p>Your token was accepted.</p>`);
+  return res.send(`<h1>✅ Access Verified</h1><p>Your token <code>${token}</code> is valid.</p>`);
 });
 
-app.listen(port, () => {
-  console.log(`Token verification server running at http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
