@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 // Token Store
 const validTokens = new Map([
-  ['abc123', { used: false, createdAt: Date.now() }]
+  ['abc1234', { used: false, createdAt: Date.now() }]
 ]);
 
 // Session Store (keyed by sessionId)
